@@ -4,7 +4,9 @@ from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import UnstructuredPDFLoader
 from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
 
 from langchain_experiments.simple_chat_with_pdf.const import PDF_PATH, TEXT_SPLIT_CHUNK_SIZE, TEXT_SPLIT_CHUNK_OVERLAP, \
     EMBEDDING_MODEL_NAME, VECTOR_DB_COLLECTION_NAME, LLM_MODEL_NAME
@@ -50,13 +52,11 @@ def load_llm():
     __llm = ChatOllama(model = LLM_MODEL_NAME)
     return __llm
 
-def get_retriever(vector_db=None):
+def get_retriever(vector_db=None,llm = None):
     retriever_query_prompt = PromptTemplate(
         input_variables=["question"],
         template=RETRIEVER_PROMPT_TEMPLATE
     )
-
-    llm = load_llm()
 
     retriever = MultiQueryRetriever.from_llm(
         retriever=vector_db.as_retriever(),
@@ -69,9 +69,28 @@ if __name__ == '__main__':
     page_wise_document: List[Document] = read_pdf()
     chunks: List[Document] = create_chunks(page_wise_document)
     vector_db:Chroma = vector_store(chunks)
-    retriever = get_retriever(vector_db)
+    llm = load_llm()
+    retriever = get_retriever(vector_db,llm)
 
-    template
+    template = '''
+    Answer the question based only on the following context:
+    {context}
+    Question: {question}
+    '''
+
+    prompt = ChatPromptTemplate.from_template(template)
+    chain = (
+        {"context":retriever,"question":RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    chain_input = """
+    what is this about?"""
+    print(chain.invoke(
+        input=chain_input
+    ))
 
 
 
