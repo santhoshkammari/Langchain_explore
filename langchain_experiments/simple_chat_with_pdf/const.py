@@ -7,3 +7,6 @@ TEXT_SPLIT_CHUNK_OVERLAP: int = 10
 #vectorDB parameters
 EMBEDDING_MODEL_NAME: str = "tinyllama"
 VECTOR_DB_COLLECTION_NAME: str = "local-rag"
+
+#llm parameters
+LLM_MODEL_NAME: str = "tinyllama"
