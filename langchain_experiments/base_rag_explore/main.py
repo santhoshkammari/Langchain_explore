@@ -34,11 +34,6 @@ def create_chunks(data):
     chunks = text_splitter.split_documents(data)
     return chunks
 
-def format_docs(docs: List[Document]):
-    print("===================")
-    print(docs)
-    print("=================")
-    return "\n\n".join(doc.page_content for doc in docs)
 def run_chain(retriever=None, llm=None):
     template = '''
         Answer the question based only on the following context:
@@ -48,14 +43,14 @@ def run_chain(retriever=None, llm=None):
 
     prompt = ChatPromptTemplate.from_template(template)
     chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
+            {"context": retriever , "question": RunnablePassthrough()}
             | prompt
             | llm
             | StrOutputParser()
     )
 
     chain_input = """
-        Extract the information for the key : 59
+        Extract the information for the key : 32B
         """
     print("Answer \n")
     response = chain.invoke(
