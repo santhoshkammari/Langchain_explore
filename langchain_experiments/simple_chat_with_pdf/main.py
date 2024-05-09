@@ -3,6 +3,7 @@ from typing import List
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import UnstructuredPDFLoader
+from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
@@ -52,6 +53,15 @@ def load_llm():
     __llm = ChatOllama(model = LLM_MODEL_NAME)
     return __llm
 
+def load_hf_model():
+    __llm = HuggingFacePipeline.from_model_id(
+        model_id="openai-community/gpt2",
+        task="text-generation",
+        model_kwargs={
+            "max_length": 250,
+                        }
+    )
+    return __llm
 def get_retriever(vector_db=None,llm = None):
     retriever_query_prompt = PromptTemplate(
         input_variables=["question"],
@@ -69,7 +79,7 @@ if __name__ == '__main__':
     page_wise_document: List[Document] = read_pdf()
     chunks: List[Document] = create_chunks(page_wise_document)
     vector_db:Chroma = vector_store(chunks)
-    llm = load_llm()
+    llm = load_hf_model()
     retriever = get_retriever(vector_db,llm)
 
     template = '''
