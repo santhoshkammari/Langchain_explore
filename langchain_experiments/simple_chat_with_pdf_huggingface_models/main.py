@@ -1,5 +1,6 @@
 from typing import List
 
+import torch
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_community.chat_models import ChatOllama
 from langchain_community.document_loaders import UnstructuredPDFLoader
@@ -8,6 +9,7 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from transformers import AutoTokenizer
 
 from langchain_experiments.simple_chat_with_pdf.const import PDF_PATH, TEXT_SPLIT_CHUNK_SIZE, TEXT_SPLIT_CHUNK_OVERLAP, \
     EMBEDDING_MODEL_NAME, VECTOR_DB_COLLECTION_NAME, LLM_MODEL_NAME
@@ -43,8 +45,11 @@ def get_ollama_embeddings():
     return embeddings
 
 def get_hugging_face_embeddings():
-    embeddings = HuggingFaceEmbeddings()
-    embeddings.embed_query("hai who is this")
+    from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+    embeddings = HuggingFaceInferenceAPIEmbeddings(
+        model_name = "gpt2",
+        api_key = "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"
+    )
     return embeddings
 def vector_store(chunks):
     filtered_chunks = []
@@ -52,7 +57,7 @@ def vector_store(chunks):
         filtered_chunks.append(Document(page_content=chunk.page_content))
     vector_db = Chroma.from_documents(
         documents=filtered_chunks,
-        embedding= get_ollama_embeddings(),
+        embedding= get_hugging_face_embeddings(),
         collection_name= VECTOR_DB_COLLECTION_NAME
     )
     return vector_db
@@ -84,11 +89,17 @@ def get_retriever(vector_db=None,llm = None):
     return retriever
 
 if __name__ == '__main__':
+    print("start")
     page_wise_document: List[Document] = read_pdf()
+    print("pages done")
     chunks: List[Document] = create_chunks(page_wise_document)
+    print("chunks done")
     vector_db:Chroma = vector_store(chunks)
+    print("vectors done")
     llm = load_hf_model()
+    print("load model done")
     retriever = get_retriever(vector_db,llm)
+    print("retreiver done")
 
     template = '''
     Answer the question based only on the following context:
