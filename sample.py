@@ -1,9 +1,12 @@
+from typing import List
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from langchain_community.llms import Ollama
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import OllamaEmbeddings
+from langchain_core.runnables import RunnablePassthrough
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
@@ -93,6 +96,11 @@ class CustomDocumentLoader():
                                     
 
         return document_lines
+def format_docs(docs: List[Document]):
+    print("===================")
+    print(docs)
+    print("=================")
+    return docs
 
 def main():
     llm = Ollama(model = LLM_MODEL_NAME)
@@ -124,10 +132,11 @@ def main():
 
 
     retriever = vector.as_retriever()
-    # retrieval_chain = create_retrieval_chain(retriever, document_chain)
-    # response = retrieval_chain.invoke({"input": "Extract the Value of 32B"})
+    retrieval_chain = {"context": retriever | format_docs,"input":RunnablePassthrough()}  | prompt | llm | output_parser
+    response = retrieval_chain.invoke("Extract the value of key named 47B")
 
-
+    print(response)
+    exit()
     # print(response["context"])
     # print(response["answer"])
 
