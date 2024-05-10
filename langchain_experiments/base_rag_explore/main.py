@@ -87,7 +87,7 @@ def main():
     tokenizer.pad_token = tokenizer.eos_token  # You can choose another token if needed
 
     vectorstore = Chroma.from_documents(documents=chunks,
-                                        embedding=HuggingFaceEmbeddings()
+                                        embedding=get_hugging_faceinference_embeddings()
                                          )
     retriever = vectorstore.as_retriever()
     llm = ChatOllama(model=LLM_MODEL_NAME)
