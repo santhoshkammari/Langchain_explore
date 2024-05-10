@@ -17,6 +17,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 
 from langchain_experiments.simple_chat_with_pdf.prompt_template import  RETRIEVER_PROMPT_TEMPLATE
+from sample import format_docs
 
 
 def read_pdf():
@@ -98,14 +99,14 @@ if __name__ == '__main__':
 
     prompt = ChatPromptTemplate.from_template(template)
     chain = (
-        {"context":retriever,"question":RunnablePassthrough()}
+        {"context":retriever | format_docs,"question":RunnablePassthrough()}
         | prompt
         | llm
         | StrOutputParser()
     )
 
     chain_input = """
-    Provide the value of 59 ?
+    Generate five queries for extracting value for 39A ?
     """
     response = chain.invoke(
         input=chain_input

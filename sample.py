@@ -100,7 +100,7 @@ def format_docs(docs: List[Document]):
     print("===================")
     print(docs)
     print("=================")
-    return docs
+    return "\n\n".join(doc.page_content for doc in docs)
 
 def main():
     llm = Ollama(model = LLM_MODEL_NAME)
