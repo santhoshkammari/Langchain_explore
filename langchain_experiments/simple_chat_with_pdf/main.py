@@ -106,7 +106,7 @@ if __name__ == '__main__':
     )
 
     chain_input = """
-    Generate five queries for extracting value for 39A ?
+    extract 32B?
     """
     response = chain.invoke(
         input=chain_input
