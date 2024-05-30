@@ -1,5 +1,6 @@
 from langchain_community.chat_models import ChatHuggingFace
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain_community.llms.huggingface_hub import HuggingFaceHub
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
@@ -7,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
+HuggingFaceHub()
 
 ## load using huggingface pipeline
 # llm = HuggingFacePipeline(
